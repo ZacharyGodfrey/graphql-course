@@ -36,6 +36,7 @@ const typeDefs = `
 
     type Mutation {
         createUser(name: String!, email: String!, age: Int!): User!
+        createPost(title: String!, body: String!, authorId: ID!): Post!
     }
 `;
 
@@ -165,16 +166,40 @@ const resolvers = {
         createUser: (parent, args, context, info) => {
             const { name, email, age } = args;
             const exists = users.some(x => x.email === email);
-            const id = uuid();
 
             if (exists) {
                 throw new Error(`A user with the email address '${email}' already exists.`);
             } else {
-                const user = { id, name, email, age };
+                const user = {
+                    id: uuid(),
+                    name,
+                    email,
+                    age
+                };
 
                 users.push(user);
 
                 return user;
+            }
+        },
+        createPost: (parent, args, context, info) => {
+            const { title, body, authorId } = args;
+            const exists = users.some(x => x.id === authorId);
+
+            if (!exists) {
+                throw new Error(`No author with id '${authorId}' exists.`);
+            } else {
+                const post = {
+                    id: uuid(),
+                    title,
+                    body,
+                    published: false,
+                    authorId
+                };
+
+                posts.push(post);
+
+                return post;
             }
         },
     }
