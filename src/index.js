@@ -1,13 +1,7 @@
 import { GraphQLServer } from 'graphql-yoga';
+import uuid from 'uuid/v4';
 
 const typeDefs = `
-    type Query {
-        me: User!
-        users(query: String): [User!]!
-        posts(query: String): [Post!]!
-        comments(query: String): [Comment!]!
-    }
-
     type User {
         id: ID!
         name: String!
@@ -31,6 +25,17 @@ const typeDefs = `
         text: String!
         author: User!
         post: Post!
+    }
+
+    type Query {
+        me: User!
+        users(query: String): [User!]!
+        posts(query: String): [Post!]!
+        comments(query: String): [Comment!]!
+    }
+
+    type Mutation {
+        createUser(name: String!, email: String!, age: Int!): User!
     }
 `;
 
@@ -97,6 +102,36 @@ const comments = [
 const includes = (a, b) => a.toLowerCase().includes(b.toLowerCase());
 
 const resolvers = {
+    User: {
+        posts: (parent, args, context, info) => {
+            return posts.filter(x => {
+                return x.authorId === parent.id;
+            });
+        },
+        comments: (parent, args, context, info) => {
+            return comments.filter(x => {
+                return x.authorId === parent.id;
+            });
+        },
+    },
+    Post: {
+        author: (parent, args, context, info) => {
+            return users.find(x => x.id === parent.authorId);
+        },
+        comments: (parent, args, context, info) => {
+            return comments.filter(x => {
+                return x.postId === parent.id;
+            });
+        },
+    },
+    Comment: {
+        author: (parent, args, context, info) => {
+            return users.find(x => x.id === parent.authorId);
+        },
+        post: (parent, args, context, info) => {
+            return posts.find(x => x.id === parent.postId);
+        },
+    },
     Query: {
         me: (parent, args, context, info) => {
             return users[0];
@@ -126,34 +161,21 @@ const resolvers = {
             });
         },
     },
-    User: {
-        posts: (parent, args, context, info) => {
-            return posts.filter(x => {
-                return x.authorId === parent.id;
-            });
-        },
-        comments: (parent, args, context, info) => {
-            return comments.filter(x => {
-                return x.authorId === parent.id;
-            });
-        },
-    },
-    Post: {
-        author: (parent, args, context, info) => {
-            return users.find(x => x.id === parent.authorId);
-        },
-        comments: (parent, args, context, info) => {
-            return comments.filter(x => {
-                return x.postId === parent.id;
-            });
-        },
-    },
-    Comment: {
-        author: (parent, args, context, info) => {
-            return users.find(x => x.id === parent.authorId);
-        },
-        post: (parent, args, context, info) => {
-            return posts.find(x => x.id === parent.postId);
+    Mutation: {
+        createUser: (parent, args, context, info) => {
+            const { name, email, age } = args;
+            const exists = users.some(x => x.email === email);
+            const id = uuid();
+
+            if (exists) {
+                throw new Error(`A user with the email address '${email}' already exists.`);
+            } else {
+                const user = { id, name, email, age };
+
+                users.push(user);
+
+                return user;
+            }
         },
     }
 };
