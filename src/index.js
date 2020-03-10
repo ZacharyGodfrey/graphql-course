@@ -168,7 +168,7 @@ const resolvers = {
             const exists = users.some(x => x.email === email);
 
             if (exists) {
-                throw new Error(`A user with the email address '${email}' already exists.`);
+                throw new Error(`A user already exists with the email address '${email}'.`);
             } else {
                 const user = {
                     id: uuid(),
@@ -187,7 +187,7 @@ const resolvers = {
             const exists = users.some(x => x.id === authorId);
 
             if (!exists) {
-                throw new Error(`No author with id '${authorId}' exists.`);
+                throw new Error(`No author exists with the id '${authorId}'.`);
             } else {
                 const post = {
                     id: uuid(),
