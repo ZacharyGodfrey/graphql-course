@@ -1,0 +1,36 @@
+query {
+  users {
+    id
+    name
+    email
+    age
+    posts {
+      id
+    }
+    comments {
+      id
+    }
+  }
+  posts {
+    id
+    title
+    body
+    published
+    author {
+      id
+    }
+    comments {
+      id
+    }
+  }
+  comments {
+    id
+    text
+    author {
+      id
+    }
+    post {
+      id
+    }
+  }
+}
