@@ -1,0 +1,18 @@
+query {
+    comments(query:"search text") {
+        id
+        text
+        author {
+            id
+            name
+            email
+            age
+        }
+        post {
+            id
+            title
+            body
+            published
+        }
+    }
+}

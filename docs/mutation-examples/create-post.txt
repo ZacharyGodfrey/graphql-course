@@ -1,0 +1,11 @@
+mutation {
+    createPost(title:"Post Title", body:"Post content.", authorId:"abc123") {
+        id
+        title
+        body
+        published
+        author {
+            id
+        }
+    }
+}

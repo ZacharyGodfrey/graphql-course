@@ -1,0 +1,18 @@
+query {
+    users(query:"search text") {
+        id
+        name
+        email
+        age
+        posts {
+            id
+            title
+            body
+            published
+        }
+        comments {
+            id
+            text
+        }
+    }
+}
