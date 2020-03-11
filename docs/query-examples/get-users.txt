@@ -1,5 +1,5 @@
 query {
-    users(query:"search text") {
+    users(query:"") {
         id
         name
         email

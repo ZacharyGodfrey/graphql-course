@@ -1,5 +1,5 @@
 query {
-    posts(query:"search text") {
+    posts(query:"") {
         id
         title
         body

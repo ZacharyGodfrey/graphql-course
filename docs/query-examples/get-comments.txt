@@ -1,5 +1,5 @@
 query {
-    comments(query:"search text") {
+    comments(query:"") {
         id
         text
         author {

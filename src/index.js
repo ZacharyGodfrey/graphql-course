@@ -37,66 +37,73 @@ const typeDefs = `
     type Mutation {
         createUser(name: String!, email: String!, age: Int!): User!
         createPost(title: String!, body: String!, authorId: ID!): Post!
+        createComment(text: String!, authorId: ID!, postId: ID!): Comment!
     }
 `;
 
 const users = [
     {
-        id: '1',
-        name: 'Test User 1',
-        email: 'test1@test.com',
-        age: 25,
+        id: 'aa82955e-ada4-4668-8330-4c7344d01070',
+        name: 'First User',
+        email: 'user1@test.null',
+        age: 21,
     },
     {
-        id: '2',
-        name: 'Test User 2',
-        email: 'test2@test.com',
-        age: 30,
+        id: 'aa82955e-ada4-4668-8330-4c7344d01071',
+        name: 'Second User',
+        email: 'user2@test.null',
+        age: 22,
     },
     {
-        id: '3',
-        name: 'Test User 3',
-        email: 'test3@test.com',
-        age: 35,
+        id: 'aa82955e-ada4-4668-8330-4c7344d01072',
+        name: 'Third User',
+        email: 'user3@test.null',
+        age: 23,
     }
 ];
 
 const posts = [
     {
-        id: '1',
+        id: 'c7a8a60d-678b-4f42-b15c-c029b737bd9d',
         title: 'First Post',
-        body: 'First post content.',
+        body: 'This is the first post.',
         published: true,
-        authorId: '1',
+        authorId: 'aa82955e-ada4-4668-8330-4c7344d01070',
     },
     {
-        id: '2',
+        id: 'c7a8a60d-678b-4f42-b15c-c029b737bd9e',
         title: 'Second Post',
-        body: 'Second post content. Draft.',
+        body: 'This is the second post.',
         published: false,
-        authorId: '2',
+        authorId: 'aa82955e-ada4-4668-8330-4c7344d01071',
     },
     {
-        id: '3',
+        id: 'c7a8a60d-678b-4f42-b15c-c029b737bd9f',
         title: 'Third Post',
-        body: 'Third post content. Draft.',
+        body: 'This is the third post.',
         published: false,
-        authorId: '2',
+        authorId: 'aa82955e-ada4-4668-8330-4c7344d01072',
     }
 ];
 
 const comments = [
     {
-        id: '1',
-        text: 'This is a comment.',
-        authorId: '3',
-        postId: '3'
+        id: 'ff6f8f91-a5aa-48d3-937c-1d9dd1708fc7',
+        text: 'This is the first comment.',
+        authorId: 'aa82955e-ada4-4668-8330-4c7344d01072',
+        postId: 'c7a8a60d-678b-4f42-b15c-c029b737bd9d'
     },
     {
-        id: '2',
-        text: 'This is another comment.',
-        authorId: '2',
-        postId: '1'
+        id: 'ff6f8f91-a5aa-48d3-937c-1d9dd1708fc8',
+        text: 'This is the second comment.',
+        authorId: 'aa82955e-ada4-4668-8330-4c7344d01070',
+        postId: 'c7a8a60d-678b-4f42-b15c-c029b737bd9e'
+    },
+    {
+        id: 'ff6f8f91-a5aa-48d3-937c-1d9dd1708fc9',
+        text: 'This is the third comment.',
+        authorId: 'aa82955e-ada4-4668-8330-4c7344d01071',
+        postId: 'c7a8a60d-678b-4f42-b15c-c029b737bd9f'
     }
 ];
 
@@ -187,7 +194,7 @@ const resolvers = {
             const exists = users.some(x => x.id === authorId);
 
             if (!exists) {
-                throw new Error(`No author exists with the id '${authorId}'.`);
+                throw new Error(`No user exists with the id '${authorId}'.`);
             } else {
                 const post = {
                     id: uuid(),
@@ -200,6 +207,28 @@ const resolvers = {
                 posts.push(post);
 
                 return post;
+            }
+        },
+        createComment: (parent, args, context, info) => {
+            const { text, authorId, postId } = args;
+            const authorExists = users.some(x => x.id === authorId);
+            const postExists = posts.some(x => x.id === postId);
+
+            if (!authorExists) {
+                throw new Error(`No user exists with the id '${authorId}'.`);
+            } else if (!postExists) {
+                throw new Error(`No post exists with the id '${postId}'.`);
+            } else {
+                const comment = {
+                    id: uuid(),
+                    text,
+                    authorId,
+                    postId,
+                };
+
+                comments.push(comment);
+
+                return comment;
             }
         },
     }

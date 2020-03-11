@@ -1,0 +1,12 @@
+mutation {
+    createComment(text:"This is a comment.", authorId:"abc123", postId:"def456") {
+        id
+        text
+        author {
+            id
+        }
+        post {
+            id
+        }
+    }
+}
