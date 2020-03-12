@@ -1,5 +1,9 @@
 mutation {
-    createComment(text:"This is a comment.", authorId:"abc123", postId:"def456") {
+    createComment(data: {
+        text: "This is a comment.",
+        authorId: "abc123",
+        postId: "def456"
+    }) {
         id
         text
         author {
