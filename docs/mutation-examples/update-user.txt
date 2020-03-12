@@ -1,0 +1,12 @@
+mutation {
+    updateUser(id:"abc123", data: {
+        name: "First Last",
+        email: "first.last@test.null",
+        age: 25
+    }) {
+        id
+        name
+        email
+        age
+    }
+}
