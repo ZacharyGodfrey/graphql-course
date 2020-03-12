@@ -1,0 +1,5 @@
+mutation {
+    deletePost(id:"def456") {
+        id
+    }
+}

@@ -54,12 +54,15 @@ const typeDefs = `
 
     type Mutation {
         createUser(data: CreateUserInput!): User!
+        deleteUser(id: ID!): User!
         createPost(data: CreatePostInput!): Post!
+        deletePost(id: ID!): Post!
         createComment(data: CreateCommentInput!): Comment!
+        deleteComment(id: ID!): Comment!
     }
 `;
 
-const users = [
+let users = [
     {
         id: 'aa82955e-ada4-4668-8330-4c7344d01070',
         name: 'First User',
@@ -80,7 +83,7 @@ const users = [
     }
 ];
 
-const posts = [
+let posts = [
     {
         id: 'c7a8a60d-678b-4f42-b15c-c029b737bd9d',
         title: 'First Post',
@@ -104,7 +107,7 @@ const posts = [
     }
 ];
 
-const comments = [
+let comments = [
     {
         id: 'ff6f8f91-a5aa-48d3-937c-1d9dd1708fc7',
         text: 'This is the first comment.',
@@ -194,16 +197,38 @@ const resolvers = {
 
             if (exists) {
                 throw new Error(`A user already exists with the email address '${email}'.`);
-            } else {
-                const user = {
-                    id: uuid(),
-                    ...args.data,
-                };
-
-                users.push(user);
-
-                return user;
             }
+
+            const user = {
+                id: uuid(),
+                ...args.data,
+            };
+
+            users.push(user);
+
+            return user;
+        },
+        deleteUser: (parent, args, context, info) => {
+            const { id } = args;
+            const userIndex = users.findIndex(x => x.id === id);
+
+            if (userIndex < 0) {
+                throw new Error(`No user exists with the id '${id}'.`);
+            }
+
+            comments = comments.filter(comment => comment.authorId === id);
+
+            posts = posts.filter(post => {
+                const match = post.authorId === id;
+
+                if (match) {
+                    comments = comments.filter(comment => comment.postId === post.id);
+                }
+
+                return !match;
+            });
+
+            return users.splice(userIndex, 1)[0];
         },
         createPost: (parent, args, context, info) => {
             const { authorId } = { ...args.data };
@@ -211,17 +236,29 @@ const resolvers = {
 
             if (!exists) {
                 throw new Error(`No user exists with the id '${authorId}'.`);
-            } else {
-                const post = {
-                    id: uuid(),
-                    published: false,
-                    ...args.data,
-                };
-
-                posts.push(post);
-
-                return post;
             }
+
+            const post = {
+                id: uuid(),
+                published: false,
+                ...args.data,
+            };
+
+            posts.push(post);
+
+            return post;
+        },
+        deletePost: (parent, args, context, info) => {
+            const { id } = args;
+            const postIndex = posts.findIndex(post => post.id === id);
+
+            if (postIndex < 0) {
+                throw new Error(`No post exists with the id '${id}'.`);
+            }
+
+            comments = comments.filter(comment => comment.postId === id);
+
+            return posts.splice(postIndex, 1)[0];
         },
         createComment: (parent, args, context, info) => {
             const { authorId, postId } = { ...args.data };
@@ -230,18 +267,30 @@ const resolvers = {
 
             if (!authorExists) {
                 throw new Error(`No user exists with the id '${authorId}'.`);
-            } else if (!postExists) {
-                throw new Error(`No post exists with the id '${postId}'.`);
-            } else {
-                const comment = {
-                    id: uuid(),
-                    ...args.data,
-                };
-
-                comments.push(comment);
-
-                return comment;
             }
+
+            if (!postExists) {
+                throw new Error(`No post exists with the id '${postId}'.`);
+            }
+
+            const comment = {
+                id: uuid(),
+                ...args.data,
+            };
+
+            comments.push(comment);
+
+            return comment;
+        },
+        deleteComment: (parent, args, context, info) => {
+            const { id } = args;
+            const commentIndex = comments.findIndex(comment => comment.id === id);
+
+            if (commentIndex < 0) {
+                throw new Error(`No comment exists with the id '${id}'.`);
+            }
+
+            return comments.splice(commentIndex, 1)[0];
         },
     }
 };
