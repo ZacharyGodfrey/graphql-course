@@ -180,6 +180,8 @@ const mutation = {
 
         context.db.comments.push(comment);
 
+        context.pubsub.publish(`comment:${comment.postId}`, { comment });
+
         return comment;
     },
     updateComment: (parent, args, context, info) => {

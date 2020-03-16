@@ -1,0 +1,10 @@
+subscription {
+    comment(postId:"def456") {
+        id
+        text
+        author {
+            id
+            name
+        }
+    }
+}

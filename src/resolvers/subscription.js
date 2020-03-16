@@ -1,13 +1,14 @@
 const Subscription = {
-    now: {
+    comment: {
         subscribe: (parent, args, context, info) => {
-            setInterval(() => {
-                context.pubsub.publish('now', {
-                    now: new Date().toISOString()
-                });
-            }, 1000);
+            const { postId } = args;
+            const post = context.db.posts.find(post => post.id === postId);
 
-            return context.pubsub.asyncIterator('now');
+            if (!post || !post.published) {
+                throw new Error(`No published post exists with the id '${postId}'.`);
+            }
+
+            return pubsub.asyncIterator(`comment:${postId}`);
         },
     },
 };

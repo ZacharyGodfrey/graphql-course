@@ -18,7 +18,7 @@ type Mutation {
 }
 
 type Subscription {
-    now: String!
+    comment(postId: ID!): Comment!
 }
 
 type User {
