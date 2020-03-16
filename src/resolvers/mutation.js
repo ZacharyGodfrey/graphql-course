@@ -39,11 +39,11 @@ const mutation = {
             throw new Error(`No user exists with the id '${id}'.`);
         }
 
-        if (name !== null) {
+        if (name !== null && name.length > 0) {
             user.name = name;
         }
 
-        if (email !== null && email !== user.email) {
+        if (email !== null && email.length > 0 && email !== user.email) {
             if (context.db.users.some(user => user.email === email)) {
                 throw new Error(`A user already exists with the email '${email}'.`);
             }
@@ -126,11 +126,11 @@ const mutation = {
             throw new Error(`No post exists with the id '${id}'.`);
         }
 
-        if (title !== null) {
+        if (title !== null && title.length > 0) {
             post.title = title;
         }
 
-        if (body !== null) {
+        if (body !== null && body.length > 0) {
             post.body = body;
         }
 
@@ -193,7 +193,7 @@ const mutation = {
             throw new Error(`No comment exists with the id '${id}'.`);
         }
 
-        if (text !== null) {
+        if (text !== null && text.length > 0) {
             comment.text = text;
         }
 

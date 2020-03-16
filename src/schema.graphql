@@ -15,9 +15,9 @@ input CreateUserInput {
 
 input UpdateUserInput {
     id: ID!
-    name: String
-    email: String
-    age: Int
+    name: String!
+    email: String!
+    age: Int!
 }
 
 type Post {
@@ -37,9 +37,9 @@ input CreatePostInput {
 
 input UpdatePostInput {
     id: ID!
-    title: String
-    body: String
-    published: Boolean
+    title: String!
+    body: String!
+    published: Boolean!
 }
 
 type Comment {
@@ -57,7 +57,7 @@ input CreateCommentInput {
 
 input UpdateCommentInput {
     id: ID!
-    text: String
+    text: String!
 }
 
 type Query {
