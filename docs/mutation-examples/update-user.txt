@@ -1,5 +1,6 @@
 mutation {
-    updateUser(id:"abc123", data: {
+    updateUser(data: {
+        id:"abc123",
         name: "First Last",
         email: "first.last@test.null",
         age: 25

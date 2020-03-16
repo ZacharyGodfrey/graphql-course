@@ -1,0 +1,13 @@
+mutation {
+    updatePost(data: {
+        id: "def456",
+        title: "Updated Title",
+        body: "Updated post body content.",
+        published: true
+    }) {
+        id
+        title
+        body
+        published
+    }
+}

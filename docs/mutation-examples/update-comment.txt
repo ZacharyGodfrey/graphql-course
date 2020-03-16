@@ -1,0 +1,9 @@
+mutation {
+    updateComment(data: {
+        id: "ghi789",
+        text: "Updated comment text.",
+    }) {
+        id
+        text
+    }
+}

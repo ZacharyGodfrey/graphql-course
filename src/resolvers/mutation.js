@@ -1,49 +1,57 @@
-import uuid from 'uuid/v4';
+import uuidv4 from 'uuid/v4';
 
 const mutation = {
     createUser: (parent, args, context, info) => {
-        const db = context.db;
-        const email = args.data.email;
-        const exists = db.users.some(user => user.email === email);
+        const {
+            email,
+            name,
+            age,
+        } = args.data;
+
+        const exists = context.db.users.some(user => user.email === email);
 
         if (exists) {
             throw new Error(`A user already exists with the email address '${email}'.`);
         }
 
         const user = {
-            id: uuid(),
-            ...args.data,
+            id: uuidv4(),
+            email,
+            name,
+            age,
         };
 
-        db.users.push(user);
+        context.db.users.push(user);
 
         return user;
     },
     updateUser: (parent, args, context, info) => {
-        const db = context.db;
-        const id = args.id;
-        const name = args.data.name;
-        const email = args.data.email;
-        const age = args.data.age;
-        const user = db.users.find(user => user.id === id);
+        const {
+            id,
+            name,
+            email,
+            age,
+        } = args.data;
+
+        const user = context.db.users.find(user => user.id === id);
 
         if (!user) {
             throw new Error(`No user exists with the id '${id}'.`);
         }
 
-        if (name) {
+        if (name !== null) {
             user.name = name;
         }
 
-        if (email && email !== user.email) {
-            if (db.users.some(user => user.email === email)) {
+        if (email !== null && email !== user.email) {
+            if (context.db.users.some(user => user.email === email)) {
                 throw new Error(`A user already exists with the email '${email}'.`);
             }
 
             user.email = email;
         }
 
-        if (age) {
+        if (age !== null) {
             if (age < 0) {
                 throw new Error(`Age cannot be a negative number.`);
             }
@@ -54,66 +62,105 @@ const mutation = {
         return user;
     },
     deleteUser: (parent, args, context, info) => {
-        const db = context.db;
         const id = args.id;
-        const userIndex = db.users.findIndex(user => user.id === id);
+        const userIndex = context.db.users.findIndex(user => user.id === id);
 
         if (userIndex < 0) {
             throw new Error(`No user exists with the id '${id}'.`);
         }
 
-        db.comments = db.comments.filter(comment => comment.authorId === id);
+        context.db.comments = context.db.comments.filter(comment => {
+            return comment.authorId === id;
+        });
 
-        db.posts = db.posts.filter(post => {
+        context.db.posts = context.db.posts.filter(post => {
             const match = post.authorId === id;
 
             if (match) {
-                db.comments = db.comments.filter(comment => comment.postId === post.id);
+                context.db.comments = context.db.comments.filter(comment => {
+                    return comment.postId === post.id;
+                });
             }
 
             return !match;
         });
 
-        return db.users.splice(userIndex, 1)[0];
+        return context.db.users.splice(userIndex, 1)[0];
     },
     createPost: (parent, args, context, info) => {
-        const db = context.db;
-        const authorId = args.data.authorId;
-        const exists = db.users.some(user => user.id === authorId);
+        const {
+            authorId,
+            title,
+            body,
+        } = args.data;
 
-        if (!exists) {
+        const authorExists = context.db.users.some(user => user.id === authorId);
+
+        if (!authorExists) {
             throw new Error(`No user exists with the id '${authorId}'.`);
         }
 
         const post = {
-            id: uuid(),
+            id: uuidv4(),
+            authorId,
+            title,
+            body,
             published: false,
-            ...args.data,
         };
 
-        db.posts.push(post);
+        context.db.posts.push(post);
+
+        return post;
+    },
+    updatePost: (parent, args, context, info) => {
+        const {
+            id,
+            title,
+            body,
+            published,
+        } = args.data;
+
+        const post = context.db.posts.find(post => post.id === id);
+
+        if (!post) {
+            throw new Error(`No post exists with the id '${id}'.`);
+        }
+
+        if (title !== null) {
+            post.title = title;
+        }
+
+        if (body !== null) {
+            post.body = body;
+        }
+
+        if (published !== null) {
+            post.published = published;
+        }
 
         return post;
     },
     deletePost: (parent, args, context, info) => {
-        const db = context.db;
         const id = args.id;
-        const postIndex = db.posts.findIndex(post => post.id === id);
+        const postIndex = context.db.posts.findIndex(post => post.id === id);
 
         if (postIndex < 0) {
             throw new Error(`No post exists with the id '${id}'.`);
         }
 
-        db.comments = db.comments.filter(comment => comment.postId === id);
+        context.db.comments = context.db.comments.filter(comment => comment.postId === id);
 
-        return db.posts.splice(postIndex, 1)[0];
+        return context.db.posts.splice(postIndex, 1)[0];
     },
     createComment: (parent, args, context, info) => {
-        const db = context.db;
-        const authorId = args.data.authorId;
-        const postId = args.data.postId;
-        const authorExists = db.users.some(user => user.id === authorId);
-        const postExists = db.posts.some(post => post.id === postId);
+        const {
+            authorId,
+            postId,
+            text,
+        } = args.data;
+
+        const authorExists = context.db.users.some(user => user.id === authorId);
+        const postExists = context.db.posts.some(post => post.id === postId);
 
         if (!authorExists) {
             throw new Error(`No user exists with the id '${authorId}'.`);
@@ -124,24 +171,43 @@ const mutation = {
         }
 
         const comment = {
-            id: uuid(),
-            ...args.data,
+            id: uuidv4(),
+            authorId,
+            postId,
+            text,
         };
 
-        db.comments.push(comment);
+        context.db.comments.push(comment);
+
+        return comment;
+    },
+    updateComment: (parent, args, context, info) => {
+        const {
+            id,
+            text,
+        } = args.data;
+
+        const comment = context.db.comments.find(comment => comment.id === id);
+
+        if (!comment) {
+            throw new Error(`No comment exists with the id '${id}'.`);
+        }
+
+        if (text !== null) {
+            comment.text = text;
+        }
 
         return comment;
     },
     deleteComment: (parent, args, context, info) => {
-        const db = context.db;
         const id = args.id;
-        const commentIndex = db.comments.findIndex(comment => comment.id === id);
+        const commentIndex = context.db.comments.findIndex(comment => comment.id === id);
 
         if (commentIndex < 0) {
             throw new Error(`No comment exists with the id '${id}'.`);
         }
 
-        return db.comments.splice(commentIndex, 1)[0];
+        return context.db.comments.splice(commentIndex, 1)[0];
     },
 };
 
