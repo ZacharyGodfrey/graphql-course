@@ -1,8 +1,9 @@
 mutation {
     createPost(data: {
+        authorId: "abc123",
         title: "Post Title",
         body: "Post content.",
-        authorId: "abc123"
+        published: false
     }) {
         id
         title

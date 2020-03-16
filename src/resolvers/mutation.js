@@ -92,6 +92,7 @@ const mutation = {
             authorId,
             title,
             body,
+            published
         } = args.data;
 
         const authorExists = context.db.users.some(user => user.id === authorId);
@@ -105,7 +106,7 @@ const mutation = {
             authorId,
             title,
             body,
-            published: false,
+            published,
         };
 
         context.db.posts.push(post);

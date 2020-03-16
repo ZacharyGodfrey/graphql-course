@@ -1,8 +1,8 @@
 mutation {
     createComment(data: {
-        text: "This is a comment.",
         authorId: "abc123",
-        postId: "def456"
+        postId: "def456",
+        text: "This is a comment."
     }) {
         id
         text
