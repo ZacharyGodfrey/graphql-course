@@ -1,0 +1,12 @@
+subscription {
+    post {
+        id
+        title
+        body
+        published
+        author {
+            id
+            name
+        }
+    }
+}

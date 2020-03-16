@@ -111,6 +111,10 @@ const mutation = {
 
         context.db.posts.push(post);
 
+        if (post.published) {
+            context.pubsub.publish('post', { post });
+        }
+
         return post;
     },
     updatePost: (parent, args, context, info) => {
