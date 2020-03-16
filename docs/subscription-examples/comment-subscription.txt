@@ -1,10 +1,13 @@
 subscription {
     comment(postId:"def456") {
-        id
-        text
-        author {
+        mutation
+        data {
             id
-            name
+            text
+            author {
+                id
+                name
+            }
         }
     }
 }

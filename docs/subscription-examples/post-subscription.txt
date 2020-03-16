@@ -1,12 +1,15 @@
 subscription {
     post {
-        id
-        title
-        body
-        published
-        author {
+        mutation
+        data {
             id
-            name
+            title
+            body
+            published
+            author {
+                id
+                name
+            }
         }
     }
 }

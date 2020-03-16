@@ -1,6 +1,6 @@
 import uuidv4 from 'uuid/v4';
 
-const mutation = {
+const Mutation = {
     createUser: (parent, args, context, info) => {
         const {
             email,
@@ -112,7 +112,12 @@ const mutation = {
         context.db.posts.push(post);
 
         if (post.published) {
-            context.pubsub.publish('post', { post });
+            context.pubsub.publish('post', {
+                post: {
+                    mutation: 'created',
+                    data: post,
+                },
+            });
         }
 
         return post;
@@ -131,6 +136,8 @@ const mutation = {
             throw new Error(`No post exists with the id '${id}'.`);
         }
 
+        const originalPost = { ...post };
+
         if (title !== null && title.length > 0) {
             post.title = title;
         }
@@ -141,6 +148,32 @@ const mutation = {
 
         if (published !== null) {
             post.published = published;
+        }
+
+        if (!originalPost.published && post.published) {
+            // Original post was not published but post now is published
+            context.pubsub.publish('post', {
+                post: {
+                    mutation: 'created',
+                    data: post,
+                },
+            });
+        } else if (originalPost.published && !post.published) {
+            // Original post was published but post now is not published
+            context.pubsub.publish('post', {
+                post: {
+                    mutation: 'deleted',
+                    data: originalPost,
+                },
+            });
+        } else if (originalPost.published && post.published) {
+            // Original post was published and post is still published
+            context.pubsub.publish('post', {
+                post: {
+                    mutation: 'updated',
+                    data: post,
+                },
+            });
         }
 
         return post;
@@ -155,7 +188,18 @@ const mutation = {
 
         context.db.comments = context.db.comments.filter(comment => comment.postId === id);
 
-        return context.db.posts.splice(postIndex, 1)[0];
+        const [ deleted ] = context.db.posts.splice(postIndex, 1);
+
+        if (deleted.published) {
+            context.pubsub.publish('post', {
+                post: {
+                    mutation: 'deleted',
+                    data: post,
+                }
+            });
+        }
+
+        return deleted;
     },
     createComment: (parent, args, context, info) => {
         const {
@@ -218,4 +262,4 @@ const mutation = {
     },
 };
 
-export { mutation as default };
+export { Mutation as default };

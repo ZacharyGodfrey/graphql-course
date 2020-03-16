@@ -64,10 +64,10 @@ let comments = [
     }
 ];
 
-const db = {
+const Database = {
     users,
     posts,
     comments,
 };
 
-export { db as default };
+export { Database as default };

@@ -13,7 +13,7 @@ const Subscription = {
     },
     post: {
         subscribe: (parent, args, context, info) => {
-            return pubsub.asyncIterator(`post`);
+            return context.pubsub.asyncIterator(`post`);
         },
     }
 };
