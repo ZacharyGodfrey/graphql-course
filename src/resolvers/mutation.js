@@ -194,7 +194,7 @@ const Mutation = {
             context.pubsub.publish('post', {
                 post: {
                     mutation: 'deleted',
-                    data: post,
+                    data: deleted,
                 }
             });
         }
@@ -228,7 +228,10 @@ const Mutation = {
 
         context.db.comments.push(comment);
 
-        context.pubsub.publish(`comment:${comment.postId}`, { comment });
+        context.pubsub.publish(`comment:${comment.postId}`, {
+            mutation: 'created',
+            data: comment,
+        });
 
         return comment;
     },
@@ -248,6 +251,11 @@ const Mutation = {
             comment.text = text;
         }
 
+        context.pubsub.publish(`comment:${comment.postId}`, {
+            mutation: 'updated',
+            data: comment,
+        });
+
         return comment;
     },
     deleteComment: (parent, args, context, info) => {
@@ -258,7 +266,14 @@ const Mutation = {
             throw new Error(`No comment exists with the id '${id}'.`);
         }
 
-        return context.db.comments.splice(commentIndex, 1)[0];
+        const [ deleted ] = context.db.comments.splice(commentIndex, 1);
+
+        context.pubsub.publish(`comment:${comment.postId}`, {
+            mutation: 'deleted',
+            data: deleted,
+        });
+
+        return deleted;
     },
 };
 
